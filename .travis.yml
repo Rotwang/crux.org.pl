@@ -1,0 +1,19 @@
+language: python
+python:
+  - '2.7'
+install:
+  - pip install -r cd-requirements.txt
+script:
+  - ./package-stack
+deploy:
+  - provider: script
+    skip_cleanup: true
+    script: ./deploy-stack site-crux-org-pl
+    #on:
+    #  tags: true
+  - provider: script
+    skip_cleanup: true
+    script: ./sync-www site-crux-org-pl
+    #on:
+    #  tags: true
+

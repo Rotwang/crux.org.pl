@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+master_stack="$1"
+[[ "$master_stack" ]] || { echo "Not enough arguments." >&2; exit 2; }
+
+# travis_wait not available in the deploy step
+# https://docs.travis-ci.com/user/common-build-problems/#Build-times-out-because-no-output-was-received
+for ((i=0; i<360; i++)); do sleep 10; echo .; done &
+dots=$!
+
+exec {fh}>$(mktemp); rm -rf "$(readlink "/proc/self/fd/$fh")"
+(
+  ( set -x; aws cloudformation deploy \
+    --template-file master.yaml \
+    --stack-name $master_stack \
+    --parameter-overrides \
+      DomainName=crux.org.pl \
+      ProvisionSecurityAutomations=no \
+      CreateStagingEnvironment=no \
+      UseWAF=no \
+      AcmCertificateArn=arn:aws:acm:us-east-1:663363621619:certificate/75601910-d541-4be3-84d4-913ad0a827f7; ) |
+    tee "/dev/fd/$fh"
+  s="${PIPESTATUS[0]}"
+  if ((s != 0)); then
+    grep -q "didn't contain changes." "/dev/fd/$fh" || exit 2
+  else 
+    exit "$s"
+  fi
+) &
+deploy=$!
+
+wait $deploy
+s=$?
+kill -SIGPIPE "$dots"
+
+exit "$s"

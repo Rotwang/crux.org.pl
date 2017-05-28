@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+master_stack="$1"
+[[ "$master_stack" ]] || { echo "Need master stack name to proceed." >&2; exit 2; }
+
+exec {fh}>$(mktemp); rm -f $(readlink /proc/self/$fh)
+set -x
+
+cd www
+aws cloudformation describe-stacks --stack-name "$master_stack" |
+  jq -r '.Stacks | .[] | .Outputs | .[] | select(.OutputKey=="LiveSiteBucket") | .OutputValue' |
+  tee "/dev/fd/$fh"
+  
+aws s3 sync . s3://$(<"/dev/fd/$fh") --delete

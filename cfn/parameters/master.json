@@ -1,0 +1,30 @@
+[
+  {
+    "ParameterKey": "DomainName",
+    "ParameterValue": "example.com"
+  },
+  {
+    "ParameterKey": "StagingSubdomain",
+    "ParameterValue": "staging"
+  },
+  {
+    "ParameterKey": "IpWhitelist",
+    "ParameterValue": "0.0.0.0/0"
+  },
+  {
+    "ParameterKey": "ProvisionSecurityAutomations",
+    "ParameterValue": "no"
+  },
+  {
+    "ParameterKey": "UseWAF",
+    "ParameterValue": "no"
+  },
+  {
+    "ParameterKey": "CreateStagingEnvironment",
+    "ParameterValue": "yes"
+  },
+  {
+    "ParameterKey": "SendAnonymousUsageData",
+    "ParameterValue": "no"
+  }
+]

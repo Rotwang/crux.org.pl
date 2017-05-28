@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+set -e
+
+(
+  exec {fh}>$(mktemp); rm -rf "$(readlink "/proc/self/fd/$fh")"
+  set +e
+  ( set -x;
+    LC_ALL=C aws cloudformation deploy \
+      --template-file cfn/templates/create-deploy-bucket.template.yaml \
+      --stack-name deploy-bucket; ) 2>&1 |
+    tee "/dev/fd/$fh"
+  s="${PIPESTATUS[0]}"
+  if ((s != 0)); then
+    grep -q "didn't contain changes." "/dev/fd/$fh" || exit 2
+  else 
+    exit "$s"
+  fi
+)
+
+(
+  exec {fh}>$(mktemp); rm -rf "$(readlink "/proc/self/fd/$fh")"
+  set +e
+  ( set -x;
+    aws cloudformation describe-stacks \
+      --stack-name deploy-bucket |
+        jq -r '.Stacks | .[].Outputs | .[].OutputValue'; ) | tee "/dev/fd/$fh"
+  ( set -x;
+    aws cloudformation package \
+      --template-file cfn/templates/master.template.yaml \
+      --output-template-file master.yaml \
+      --s3-bucket "$(</dev/fd/$fh)"; )
+)

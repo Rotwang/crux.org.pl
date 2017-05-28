@@ -1,0 +1,14 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Creates S3 bucket used for depeloyment.
+
+Resources:
+  DeploymentBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      AccessControl: Private
+
+Outputs:
+  Bucket:
+    Value: !Ref DeploymentBucket
+    Description: Bucket name.
