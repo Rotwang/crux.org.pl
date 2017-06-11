@@ -9,11 +9,11 @@ deploy:
   - provider: script
     skip_cleanup: true
     script: ./deploy-stack site-crux-org-pl
-    #on:
-    #  tags: true
+    on:
+      tags: true
   - provider: script
     skip_cleanup: true
     script: ./sync-www site-crux-org-pl
-    #on:
-    #  tags: true
+    on:
+      tags: true
 
